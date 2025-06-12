@@ -32,11 +32,28 @@ app.mount("/dashboard", WSGIMiddleware(app_dash.server))
  
  
 user={"admin":"123"}
+
+EXTERNAL_API_URL=""
+def get_external_info():
+    try:
+        response=requests.get(EXTERNAL_API_URL)
+        response.raise_for_status()
+        return response.json()
+    except Exception as e:
+        print("error from weather api :",e)
+        return{"date":"N/A",
+               "time":"N/A",
+               "weather":{
+                   "city":"unknow",
+                   "temperature":"N/A",
+                   "description":"N/A"
+               }}
  
 # Afficher la page d'accueuil
 @app.get("/")
 async def home_page(request:Request):
-    return templates.TemplateResponse('home.html', {"request":request})
+    info=get_external_info()
+    return templates.TemplateResponse('home.html', {"request":request,"info":info})
  
  
 @app.get("/login")
